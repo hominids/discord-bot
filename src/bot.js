@@ -3,9 +3,14 @@ const ethers = require('ethers');
 const pako = require('pako')
 const fs = require('fs');
 const TOKEN = fs.readFileSync(".secret").toString().trim();
-const repl = require('repl')
+// const repl = require('repl')
 
 const Discord = require('discord.js');
+
+const command = require('./command')
+
+
+
 
 const intents = new Discord.Intents(32767)
 const client = new Discord.Client({ intents });
@@ -121,48 +126,59 @@ const loadProposals = async() => {
       return item
     }))
     fs.readFile('proposals.json', function(err, jsonData){
+        const storedProposals = JSON.parse(jsonData);
         const openProposals = items;
-        const storedProposals = JSON.parse(JSON.stringify(jsonData));
-        if (openProposals !== storedProposals) {
+        if (openProposals != storedProposals) {
             console.log('Changes present: ');
             //get and display differences
-            for (const openProposal of openProposals) {
-                console.log(openProposal.title)
+            const missingProposals = openProposals.filter(o => !storedProposals.some(v => v.title === o.title));
+            console.log(missingProposals)
+
+            for (const missingProposal of missingProposals) {
+              const botLogsChannel = client.channels.cache.get('893009393178783744');
+              botLogsChannel.send(`!createChannel 💬${missingProposal.title}`);
+            }   
+
             // find items in storedProposals that aren't openProposal.title
             // fs.writeFile ("proposals.json", newProposals, function(err) {
             //     if (err) throw err;
             //     console.log('complete');
             //     }
             // );
-            }
         } else {
-            console.log('no new proposals');
+            console.log('No new proposals... ');
         }
     });
+}
 
-  }
-
-console.log(loadProposals())
+// console.log(loadProposals())
 // keep a file of all proposal objects
 // if a new proposal is added, get the latest proposal's title
 // send 'title' via channels.create(title) 
 
 //assign to channel "Feature Farm"
-client.on("messageCreate", message => {
 
-    const channelTarget = message.mentions.channels.first() || message.channel;
-    
-    if (message.content == "*createChannel") message.guild.channels.create('new-general', { reason: 'Needed a cool new channel' });
 
-    if (message.content == "*deleteChannel") channelTarget.delete().then(ch => {
-        message.author.send('Channel x was Deleted')
+client.on('ready', () => {
+  console.log('The client is ready!')
+
+  command(client, 'createChannel', (message) => {
+    const name = message.content.replace('!createChannel ', '')
+
+    message.guild.channels
+    .create(name, { type: 'text',
     })
-});
+    .then((channel) => {
+    const categoryId = '892702333719429130'
+    channel.setParent(categoryId)
+    })
+  })
+})
 
 
 client.login(TOKEN);
 
-
+loadProposals();
 // if a proposal is completed, or deleted, delete it from channels
 
 
