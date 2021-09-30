@@ -89,17 +89,6 @@ async function decodeMetadata (str) {
     }
   };
 
-function diff(obj1, obj2) {
-    var result = {};
-    for(key in obj1) {
-        if(obj2[key] != obj1[key]) result[key] = obj2[key];
-        if(typeof obj2[key] == 'array' && typeof obj1[key] == 'array') 
-            result[key] = arguments.callee(obj1[key], obj2[key]);
-        if(typeof obj2[key] == 'object' && typeof obj1[key] == 'object') 
-            result[key] = arguments.callee(obj1[key], obj2[key]);
-    }
-    return result;
-}
 
 const loadProposals = async() => {
     const rollupProvider = new ethers.providers.JsonRpcProvider(ROLLUP_RPC, 'any');
@@ -132,13 +121,14 @@ const loadProposals = async() => {
       return item
     }))
     fs.readFile('proposals.json', function(err, jsonData){
-        const newProposals = items;
-        const proposals = JSON.parse(JSON.stringify(jsonData));
-        if (proposals !== newProposals) {
+        const openProposals = items;
+        const storedProposals = JSON.parse(JSON.stringify(jsonData));
+        if (openProposals !== storedProposals) {
             console.log('Changes present: ');
             //get and display differences
-            for (const newProposal of newProposals) {
-            // filter items in proposals that aren't proposal.title
+            for (const openProposal of openProposals) {
+                console.log(openProposal.title)
+            // find items in storedProposals that aren't openProposal.title
             // fs.writeFile ("proposals.json", newProposals, function(err) {
             //     if (err) throw err;
             //     console.log('complete');
