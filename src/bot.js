@@ -3,14 +3,9 @@ const ethers = require('ethers');
 const pako = require('pako')
 const fs = require('fs');
 const TOKEN = fs.readFileSync(".secret").toString().trim();
-// const repl = require('repl')
 
 const Discord = require('discord.js');
-
 const command = require('./command')
-
-
-
 
 const intents = new Discord.Intents(32767)
 const client = new Discord.Client({ intents });
