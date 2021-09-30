@@ -120,10 +120,10 @@ const loadProposals = async() => {
       }
       return item
     }))
+    const openProposals = items;
     fs.readFile('proposals.json', function(err, jsonData){
         const storedProposals = JSON.parse(jsonData);
-        const openProposals = items;
-        if (openProposals != storedProposals) {
+        if (openProposals !== storedProposals) {
             console.log('Changes present: ');
             //get and display differences
             const missingProposals = openProposals.filter(o => !storedProposals.some(v => v.title === o.title));
@@ -134,12 +134,11 @@ const loadProposals = async() => {
               botLogsChannel.send(`!createChannel 💬${missingProposal.title}`);
             }   
 
-            // find items in storedProposals that aren't openProposal.title
-            // fs.writeFile ("proposals.json", newProposals, function(err) {
-            //     if (err) throw err;
-            //     console.log('complete');
-            //     }
-            // );
+            fs.writeFile ("proposals.json", JSON.stringify(openProposals), function(err) {
+              if (err) throw err;
+                console.log('complete');
+              }
+            );
         } else {
             console.log('No new proposals... ');
         }
